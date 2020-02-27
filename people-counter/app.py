@@ -10,6 +10,8 @@ import time
 import edgeiq
 import metrics_manager
 import file_manager
+import numpy as np
+import cv2
 
 CENTROID_TRACKER = "centroid_tracker"
 METRICS_MANAGER = "metrics_manager"
@@ -22,7 +24,6 @@ OBJECT_DETECTION_MODEL=os.getenv('OBJECT_DETECTION_MODEL', 'mobilenet_ssd')
 if OBJECT_DETECTION_MODEL not in valid_models:
     print("Selected model is invalid, changing to default: mobilenet_ssd")
     OBJECT_DETECTION_MODEL='mobilenet_ssd'
-
 
 def main():
     # Spin up the object detector
@@ -63,6 +64,28 @@ def main():
                 filter = edgeiq.filter_predictions_by_label(
                     results.predictions, ['person'])
 
+                # Color science
+                for result in filter:
+                    # print(result.box)
+                    # col = bincount_app(frame[result.box.start_y:result.box.end_y, result.box.start_x:result.box.end_x])
+                    # print(col)
+                    print('area of {}'.format(result.box.area))
+                    print('width of {}'.format(result.box.width))
+                    print('height of {}'.format(result.box.height))
+
+                    if result.box.height > 1.8 * result.box.width:
+                        start_y = int(result.box.start_y + 0.1 * result.box.height)
+                        end_y = int(result.box.height * 0.6)
+
+                        data = np.reshape(frame[start_y:end_y, result.box.start_x:result.box.end_x], (-1,3))
+                        data = np.float32(data)
+
+                        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+                        flags = cv2.KMEANS_RANDOM_CENTERS
+                        compactness,labels,centers = cv2.kmeans(data,1,None,criteria,10,flags)
+
+                        print('Dominant color is: bgr({})'.format(centers[0].astype(np.int32)))
+
                 # Adding info for streamer display
                 text = ["Model: {}".format(obj_detect.model_id)]
                 text.append(
@@ -101,7 +124,7 @@ def main():
                     "Longest individual time: {} sec".format(m["max"]))
 
                 # Update output streamer
-                frame = edgeiq.markup_image(frame, predictions)
+                frame = edgeiq.markup_image(frame, predictions,show_labels=True, show_confidences=True, colors=None)
                 streamer.send_data(frame, text)
                 fps.update()
 

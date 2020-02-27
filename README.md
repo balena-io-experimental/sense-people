@@ -16,6 +16,7 @@ It creates a grafana dashboard that shows the video stream from alwaysAI with ad
 2. Fit a jumper to J48 on the Jetson Nano board ([instructions](https://devtalk.nvidia.com/default/topic/1048640/jetson-nano/power-supply-considerations-for-jetson-nano-developer-kit/))
 3. Flash the SD card, and you are good to go!
 
+PSA: The heatsink on the Nano gets *HOT* after a few minutes running this project.
 
 ## Usage: Visualization
 
