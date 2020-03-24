@@ -137,7 +137,7 @@
       }
     },
     {
-      "content": "\n<iframe id=\"innerIframe\" scrolling=\"no\" width=\"100%\" height=\"100%\" src=\"http://192.168.90.222:5000\"></iframe>\n\n",
+      "content": "<iframe id=\"innerIframe\" scrolling=\"no\" width=\"100%\" height=\"100%\" onload=\"if(document.getElementById('innerIframe').src == '') { document.getElementById('innerIframe').src = window.location.protocol + '//' + window.location.hostname + ':5000/'; }\"></iframe>\n",
       "gridPos": {
         "h": 17,
         "w": 14,
